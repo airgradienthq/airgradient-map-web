@@ -49,7 +49,7 @@
     "vue-tsc": "^2.2.8"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.1",
+    "@capacitor/cli": "^7.2.0",
     "@nuxtjs/leaflet": "^1.2.6",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
