@@ -35,7 +35,7 @@
     "@maplibre/maplibre-gl-leaflet": "^0.0.22",
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.10.1",
-    "@types/node": "^22.13.14",
+    "@types/node": "^22.15.3",
     "geojson": "^0.5.0",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
