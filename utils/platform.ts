@@ -4,7 +4,7 @@ export const isNativeApp = (): boolean => {
 
 export const getPlatform = (): string => {
   if (isNativeApp()) {
-    //@ts-ignore
+    // @ts-expect-error: window.Capacitor is only defined in native apps
     return window.Capacitor.getPlatform();
   }
   return 'web';

@@ -17,12 +17,12 @@
         <button
           class="navbar-toggler border-0"
           type="button"
-          @click="toggleNavbar()"
           data-toggle="collapse"
           data-target="#navigation"
           aria-controls="navigation"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          @click="toggleNavbar()"
         >
           <span class="navbar-toggler-icon"></span>
         </button>

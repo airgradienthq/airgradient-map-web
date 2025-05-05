@@ -3,7 +3,7 @@ services:
     build:
       context: .
     ports:
-      - "80:80"
+      - "3001:80"
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0

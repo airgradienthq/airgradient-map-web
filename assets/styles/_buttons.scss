@@ -2,14 +2,14 @@
 @use "mixins" as *;
 
 .btn-large {
-  line-height: 27px;
+  line-height: 1.3;
   padding: 10px 15px !important;
   border-radius: 4px !important;
   text-decoration: none !important;
   text-align: center;
   font-weight: bold !important;
   font-family: var(--secondary-font);
-  font-size: 18px !important;
+  font-size: 16px !important;
   display: inline-block;
 }
 

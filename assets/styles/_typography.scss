@@ -11,6 +11,7 @@ body {
   color: var(--main-text-color);
   font-family: var(--primary-font);
   -webkit-font-smoothing: antialiased;
+  font-size: 16px;
 }
 
 h1 {
@@ -58,7 +59,7 @@ h5 {
 }
 
 p {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--main-text-color);
   line-height: 27px;
 }

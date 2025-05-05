@@ -3,13 +3,14 @@
   --secondary-font: 'Cabin', sans-serif;
   --main-text-color: #212121;
   --main-white-color: #ffffff;
-  --main-disabled-color: rgba(0, 0, 0, 0.26);
+  --main-disabled-color: var(--grayColor500);
   --light-disabled-color: rgba(0, 0, 0, 0.12);
 
   --primary-color: var(--primaryColor500);
   --dark-primary-color: var(--primaryColor700);
   --light-primary-color: var(--primaryColor100);
   --secondary-color: var(--secondaryColor500);
+  --main-transition: 0.2s ease-in-out;
 
 
   // EXTENDED PRIMARY COLOR PALETTE

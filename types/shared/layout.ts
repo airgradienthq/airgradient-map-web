@@ -4,8 +4,8 @@ interface LayoutLink {
   openBlank: boolean;
 }
 
-export interface HeaderLink extends LayoutLink {}
-export interface FooterLink extends LayoutLink {}
+export type HeaderLink = LayoutLink;
+export type FooterLink = LayoutLink;
 
 export interface FooterLinkGroup {
   group: number;

@@ -6,25 +6,26 @@
 
 <script setup lang="ts">
   import { computed, PropType } from 'vue';
+  import { ButtonColor, ButtonSize } from '~/types';
 
   const props = defineProps({
     /**
      * Size of the button.
-     * @type {'small' | 'large'}
-     * @default 'small'
+     * @type {ButtonSize}
+     * @default ButtonSize.NORMAL
      */
     size: {
-      type: String as PropType<'small' | 'large'>,
-      default: 'small'
+      type: String as PropType<ButtonSize>,
+      default: ButtonSize.NORMAL
     },
     /**
-     * Kind of the button, which determines its color.
-     * @type {'primary' | 'secondary' | 'secondary-dark-bg'}
-     * @default 'blue'
+     * Color of the button.
+     * @type {ButtonColor}
+     * @default ButtonColor.PRIMARY
      */
-    kind: {
-      type: String as PropType<'primary' | 'secondary' | 'secondary-dark-bg'>,
-      default: 'blue'
+    color: {
+      type: String as PropType<ButtonColor>,
+      default: ButtonColor.PRIMARY
     },
     /**
      * Whether the button is disabled.
@@ -38,12 +39,12 @@
   });
 
   const buttonClasses = computed(() => {
-    const sizeClass = props.size === 'large' ? 'btn-large' : 'btn-small';
+    const sizeClass = props.size === ButtonSize.NORMAL ? 'btn-large' : 'btn-small';
     const colorClass = {
-      primary: 'button-orange',
-      secondary: 'button-blue',
-      'secondary-dark-bg': 'button-white'
-    }[props.kind];
+      [ButtonColor.PRIMARY]: 'button-orange',
+      [ButtonColor.SECONDARY]: 'button-blue',
+      [ButtonColor.SECONDARY_DARK_BG]: 'button-white'
+    }[props.color];
 
     return `${sizeClass} ${colorClass}`;
   });

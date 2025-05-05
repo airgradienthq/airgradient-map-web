@@ -2,14 +2,17 @@
   <UiProgressBar :show="loading"></UiProgressBar>
   <div id="map">
     <div class="map-controls">
-      <select v-model="displayType" class="display-type-selector">
-        <option :value="MeasureNames.PM25">PM2.5 (μg/m³)</option>
-        <option :value="MeasureNames.PM_AQI">US AQI (PM2.5)</option>
-      </select>
+      <UiDropdownControl
+        :selected-value="generalConfigStore.selectedMeasure"
+        :options="measureSelectOptions"
+        :disabled="loading"
+        @change="handleMeasureChange"
+      >
+      </UiDropdownControl>
     </div>
     <LMap
-      class="map"
       ref="map"
+      class="map"
       :maxBoundsViscosity="INITIAL_MAP_VIEW_CONFIG.maxBoundsViscosity"
       :maxBounds="INITIAL_MAP_VIEW_CONFIG.maxBounds"
       :zoom="INITIAL_MAP_VIEW_CONFIG.zoom"
@@ -23,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
+  import { ref } from 'vue';
   import L, { DivIcon, GeoJSON, LatLngBounds, LatLngExpression } from 'leaflet';
   import 'leaflet/dist/leaflet.css';
   import '@maplibre/maplibre-gl-leaflet';
@@ -34,15 +37,26 @@
   import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 
   import { convertToGeoJSON } from '~/utils/';
-  import { AGMapData, MeasureNames, AGMapDataItemType, SensorType } from '~/types';
+  import { AGMapData, MeasureNames, AGMapDataItemType, SensorType, DropdownOption } from '~/types';
   import { getPM25Color, getAQIColor } from '~/utils/';
   import { INITIAL_MAP_VIEW_CONFIG } from '~/constants';
   import { pm25ToAQI } from '~/utils/aqi';
+  import { useGeneralConfigStore } from '~/store/general-config-store';
 
   const loading = ref<boolean>(false);
   const map = ref<typeof LMap>();
   const apiUrl = useRuntimeConfig().public.apiUrl;
-  const displayType = ref<MeasureNames>(MeasureNames.PM25);
+  const generalConfigStore = useGeneralConfigStore();
+  const measureSelectOptions: DropdownOption[] = [
+    {
+      label: 'PM2.5 (μg/m³)',
+      value: MeasureNames.PM25
+    },
+    {
+      label: 'US AQI (PM2.5)',
+      value: MeasureNames.PM_AQI
+    }
+  ];
 
   let geoJsonMapData: GeoJsonObject;
   let mapInstance: L.Map;
@@ -76,9 +90,12 @@
     const pm25Value: number = feature.properties?.value || 0;
     const aqiValue: number = pm25ToAQI(pm25Value);
 
-    const displayValue = displayType.value === MeasureNames.PM25 ? pm25Value : aqiValue;
+    const displayValue =
+      generalConfigStore.selectedMeasure === MeasureNames.PM25 ? pm25Value : aqiValue;
     const colorConfig: { bgColor: string; textColorClass: string } =
-      displayType.value === MeasureNames.PM25 ? getPM25Color(pm25Value) : getAQIColor(aqiValue);
+      generalConfigStore.selectedMeasure === MeasureNames.PM25
+        ? getPM25Color(pm25Value)
+        : getAQIColor(aqiValue);
 
     const isSensor: boolean = feature.properties?.type === AGMapDataItemType.sensor;
     const isReference: boolean = feature.properties?.sensorType === SensorType.reference;
@@ -104,7 +121,7 @@
         <div class="tooltip-content">
           <div class="measurement">
             <span class="value">${Math.round(displayValue)}</span>
-            <span class="unit">${displayType.value === MeasureNames.PM25 ? 'PM2.5 μg/m³' : 'US AQI (PM2.5)'}</span>
+            <span class="unit">${generalConfigStore.selectedMeasure === MeasureNames.PM25 ? 'PM2.5 μg/m³' : 'US AQI (PM2.5)'}</span>
           </div>
         </div>
       </div>
@@ -176,12 +193,11 @@
     mapInstance.addControl(searchControl);
   }
 
-  watch(displayType, () => {
-    if (markers) {
-      markers.clearLayers();
-      markers.addData(geoJsonMapData);
-    }
-  });
+  function handleMeasureChange(value: MeasureNames): void {
+    useGeneralConfigStore().setSelectedMeasure(value);
+    markers.clearLayers();
+    markers.addData(geoJsonMapData);
+  }
 </script>
 
 <style lang="scss">
@@ -313,7 +329,6 @@
       input {
         height: 36px !important;
         font-size: 16px !important;
-        padding: 0 12px 0 30px !important;
       }
     }
 
