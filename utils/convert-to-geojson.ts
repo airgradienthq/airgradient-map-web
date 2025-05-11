@@ -20,6 +20,7 @@ export function convertToGeoJSON(
           type: item.type,
           sensorsCount: 'sensorsCount' in item ? item.sensorsCount : null,
           value: item.value,
+          rco2: 'rco2' in item ? item.rco2 : null,
           locationId: 'locationId' in item ? item.locationId : null,
           locationName: 'locationName' in item ? item.locationName : null,
           sensorType: 'sensorType' in item ? item.sensorType : null

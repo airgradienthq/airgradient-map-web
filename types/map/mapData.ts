@@ -20,6 +20,7 @@ export interface AGMapDataItem {
   longitude: number
   type: AGMapDataItemType
   value: number
+  rco2?: number
 }
 
 export enum AGMapDataItemType {

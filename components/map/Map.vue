@@ -5,6 +5,7 @@
       <select v-model="displayType" class="display-type-selector">
         <option value="pm25">PM2.5 (μg/m³)</option>
         <option value="aqi">US AQI (PM2.5)</option>
+        <option value="co2">CO2 (ppm)</option>
       </select>
     </div>
     <LMap
@@ -35,14 +36,20 @@ import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch'
 
 import { convertToGeoJSON } from '~/utils/'
 import { AGMapData } from '~/types'
-import { getPM25Color } from '~/utils/'
+import { getPM25Color, getCO2Color } from '~/utils/'
 import { INITIAL_MAP_VIEW_CONFIG } from '~/constants'
 import { pm25ToAQI, getAQIColor } from '~/utils/aqi'
+
+const MEASURE_MAPPING = {
+  pm25: 'pm25',
+  aqi: 'pm25', // AQI is calculated from PM2.5
+  co2: 'rco2'
+} as const
 
 const loading = ref<boolean>(false)
 const map = ref<typeof LMap>()
 const apiUrl = useRuntimeConfig().public.apiUrl
-const displayType = ref<'pm25' | 'aqi'>('pm25')
+const displayType = ref<'pm25' | 'aqi' | 'co2'>('pm25')
 
 let mapInstance: L.Map
 let markers: GeoJSON
@@ -72,13 +79,32 @@ function setUpMapInstance(): void {
 }
 
 function createMarker(feature: GeoJSON.Feature, latlng: LatLngExpression): L.Marker {
-  const pm25Value: number = feature.properties?.value || 0
-  const aqiValue: number = pm25ToAQI(pm25Value)
+  const value: number = feature.properties?.value || 0
+  const pm25Value: number = displayType.value === 'pm25' ? value : 0
+  const aqiValue: number = displayType.value === 'aqi' ? pm25ToAQI(value) : 0
+  const co2Value: number = displayType.value === 'co2' ? value : 0
   
-  const displayValue = displayType.value === 'pm25' ? pm25Value : aqiValue
-  const backgroundColor = displayType.value === 'pm25' ? 
-    getPM25Color(pm25Value) : 
-    getAQIColor(aqiValue)
+  let displayValue: number
+  let backgroundColor: string
+  let unit: string
+  
+  switch (displayType.value) {
+    case 'pm25':
+      displayValue = pm25Value
+      backgroundColor = getPM25Color(pm25Value)
+      unit = 'PM2.5 μg/m³'
+      break
+    case 'aqi':
+      displayValue = aqiValue
+      backgroundColor = getAQIColor(aqiValue)
+      unit = 'US AQI (PM2.5)'
+      break
+    case 'co2':
+      displayValue = co2Value
+      backgroundColor = getCO2Color(co2Value)
+      unit = 'CO2 ppm'
+      break
+  }
   
   const isSensor: boolean = feature.properties?.type === 'sensor'
   const isReference: boolean = feature.properties?.sensorType === 'Reference'
@@ -104,7 +130,7 @@ function createMarker(feature: GeoJSON.Feature, latlng: LatLngExpression): L.Mar
         <div class="tooltip-content">
           <div class="measurement">
             <span class="value">${Math.round(displayValue)}</span>
-            <span class="unit">${displayType.value === 'pm25' ? 'PM2.5 μg/m³' : 'US AQI (PM2.5)'}</span>
+            <span class="unit">${unit}</span>
           </div>
         </div>
       </div>
@@ -149,13 +175,15 @@ async function updateMap(): Promise<void> {
           xmax: bounds.getNorth(),
           ymax: bounds.getEast(),
           zoom: mapInstance.getZoom(),
-          measure: 'pm25'
+          measure: MEASURE_MAPPING[displayType.value]
         },
         retry: 1,
       }
     )
 
-    const geoJsonData: GeoJsonObject = convertToGeoJSON(response.data)
+    // Filter out zero values before creating GeoJSON
+    const filteredData = response.data.filter(item => item.value > 0)
+    const geoJsonData: GeoJsonObject = convertToGeoJSON(filteredData)
     markers.clearLayers()
     markers.addData(geoJsonData)
   } catch (error) {
