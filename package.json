@@ -32,7 +32,7 @@
     "@capacitor/android": "^6.2.1",
     "@capacitor/core": "^6.2.1",
     "@capacitor/ios": "^6.2.1",
-    "@maplibre/maplibre-gl-leaflet": "^0.0.22",
+    "@maplibre/maplibre-gl-leaflet": "^0.1.0",
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.10.1",
     "@types/node": "^22.13.14",
