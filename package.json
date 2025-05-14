@@ -46,7 +46,7 @@
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
     "luxon": "^3.6.1",
-    "maplibre-gl": "^4.7.1",
+    "maplibre-gl": "^5.5.0",
     "nuxt": "3.16.1",
     "pinia": "^3.0.2",
     "sass": "^1.87.0",
