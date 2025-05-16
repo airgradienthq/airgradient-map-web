@@ -22,6 +22,9 @@
       @ready="onMapReady"
     >
     </LMap>
+    <div v-if="!locationHistoryDialog?.isOpen" class="legend-box">
+      <UiColorsLegend />
+    </div>
   </div>
   <DialogsLocationHistoryDialog v-if="locationHistoryDialog" :dialog="locationHistoryDialog" />
 </template>
@@ -46,13 +49,12 @@
     DropdownOption,
     DialogId
   } from '~/types';
-  import { DEFAULT_MAP_VIEW_CONFIG } from '~/constants';
+  import { DEFAULT_MAP_VIEW_CONFIG, MEASURE_LABELS_WITH_UNITS } from '~/constants';
   import { useUrlState } from '~/composables/shared/ui/useUrlState';
   import { getColorForMeasure } from '~/utils/colors';
   import { pm25ToAQI } from '~/utils/aqi';
   import { useGeneralConfigStore } from '~/store/general-config-store';
   import { dialogStore } from '~/composables/shared/ui/useDialog';
-  import { MEASURE_LABELS_WITH_UNITS } from '~/constants/shared/measure-lables';
 
   const loading = ref<boolean>(false);
   const map = ref<typeof LMap>();
@@ -435,5 +437,15 @@
 
   .display-type-selector::-ms-expand {
     display: none;
+  }
+
+  .legend-box {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    z-index: 400;
+    width: 900px;
+    transform: translateX(-50%);
+    max-width: 90%;
   }
 </style>

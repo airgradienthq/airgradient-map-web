@@ -25,3 +25,8 @@ export enum DialogSize {
   L = 'l',
   XL = 'xl'
 }
+
+export enum ColorsLegendSize {
+  SMALL = 'small',
+  MEDIUM = 'medium'
+}

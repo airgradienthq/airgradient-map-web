@@ -67,3 +67,16 @@ body {
         max-width: 1140px;
     }
 }
+
+@media (max-width: 768px) {
+    .v-dialog > .v-overlay__content {
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        margin: 10px !important;
+    }
+
+    .v-dialog  .v-card-text {
+        padding: 16px 16px 24px !important;
+    }
+}
+

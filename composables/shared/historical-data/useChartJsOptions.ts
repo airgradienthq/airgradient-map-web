@@ -1,7 +1,7 @@
 import { ChartOptions } from 'chart.js';
 import { AnnotationOptions } from 'chartjs-plugin-annotation';
 import { CHART_MIN_VISIBLE_VALUE } from '~/constants/shared/chart-min-visible-value';
-import { MEASURE_LABELS_WITH_UNITS } from '~/constants/shared/measure-lables';
+import { MEASURE_LABELS_WITH_UNITS } from '~/constants/shared/measure-labels';
 import { useGeneralConfigStore } from '~/store/general-config-store';
 
 import { MeasureNames } from '~/types';

@@ -57,6 +57,9 @@ Location
           <Bar v-if="chartData && chartOptions" :data="chartData" :options="chartOptions" />
         </div>
       </ClientOnly>
+      <div class="mt-4">
+        <UiColorsLegend :size="ColorsLegendSize.SMALL" />
+      </div>
       <p style="height: 20px" class="mb-0 mt-4">
         <small v-if="chartOptions && locationDetails?.ownerNameDisplay">
           Contributor:
@@ -69,6 +72,7 @@ Location
 
 <script setup lang="ts">
   import {
+    ColorsLegendSize,
     DialogSize,
     HistoryPeriod,
     HistoryPeriodConfig,
@@ -88,7 +92,7 @@ Location
   import { HISTORY_PERIODS } from '~/constants/shared/chart-periods';
   import { useChartjsOptions } from '~/composables/shared/historical-data/useChartJsOptions';
   import { useChartjsData } from '~/composables/shared/historical-data/useChartJsData';
-  import { MEASURE_LABELS_SUBSCRIPTS } from '~/constants/shared/measure-lables';
+  import { MEASURE_LABELS_SUBSCRIPTS } from '~/constants/shared/measure-labels';
   import { pm25ToAQI } from '~/utils/aqi';
   import { getAQIColor, getCO2Color, getPM25Color } from '~/utils';
   import { MEASURE_UNITS } from '~/constants/shared/measure-units';
