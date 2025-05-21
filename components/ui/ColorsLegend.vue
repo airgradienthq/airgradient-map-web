@@ -25,10 +25,10 @@
 </template>
 
 <script setup lang="ts">
-  import { getLegendLabels } from '~/constants';
-  import { onMounted, PropType, ref } from 'vue';
-  import { useGeneralConfigStore } from '~/store/general-config-store';
+  import { PropType } from 'vue';
+
   import { ColorsLegendSize } from '~/types';
+  import { useLegendLabels } from '~/composables/shared/ui/useLegendLabels';
 
   defineProps({
     /**
@@ -51,12 +51,7 @@
     }
   });
 
-  const labels = ref<string[]>([]);
-  const { selectedMeasure } = useGeneralConfigStore();
-
-  onMounted(() => {
-    labels.value = getLegendLabels(selectedMeasure);
-  });
+  const { labels } = useLegendLabels();
 </script>
 
 <style lang="scss" scoped>

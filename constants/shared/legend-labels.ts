@@ -1,5 +1,3 @@
-import { MeasureNames } from '~/types';
-
 export const PM25_LEGEND_LABELS = [
   'Good',
   'Moderate',
@@ -17,14 +15,3 @@ export const RCO2_LEGEND_LABELS = [
   'Unhealthy',
   'Very Unhealthy'
 ];
-
-export function getLegendLabels(measure: MeasureNames) {
-  switch (measure) {
-    case MeasureNames.PM25:
-      return PM25_LEGEND_LABELS;
-    case MeasureNames.CO2:
-      return RCO2_LEGEND_LABELS;
-    default:
-      return [];
-  }
-}
