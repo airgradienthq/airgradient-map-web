@@ -1,16 +1,15 @@
-
 services:
   app:
     container_name: ag-map-client
     build:
       context: .
-      target: build
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
-      - .nuxt:/app/.nuxt
+      - /app/.cache
     command: npm run dev
     environment:
       - HOST=0.0.0.0

@@ -40,6 +40,9 @@ cd ag-map-client
 ```
 
 2. **Start the development server**:
+
+You can configure if your locally run web app calls the online running API backend or locally run version in the nuxt.config.ts file apiUrl section. Default is set to call locally if not deployed in production.
+
 ```bash
 docker-compose up
 ```
