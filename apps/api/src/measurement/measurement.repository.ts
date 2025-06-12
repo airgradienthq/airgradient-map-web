@@ -5,26 +5,49 @@ import {
 } from '@nestjs/common';
 import DatabaseService from 'src/database/database.service';
 import Measurement from './measurement.entity';
+import { MeasureType } from 'src/utils/measureTypeQuery';
+import { getMeasureValidValueRange } from 'src/utils/measureValueValidation';
 
 @Injectable()
 class MeasurementRepository {
   constructor(private readonly databaseService: DatabaseService) {}
   private readonly logger = new Logger(MeasurementRepository.name);
 
-  private buildMeasureQuery(measure?: string): {
+  private buildMeasureQuery(
+    measure?: string,
+    paramsCount: number = 0,
+  ): {
     selectQuery: string;
-    whereQuery?: string;
+    whereQuery: string;
+    hasValidation: boolean;
+    minVal: number | null;
+    maxVal: number | null;
   } {
+    const query = {
+      selectQuery: `m.pm25, m.pm10, m.atmp, m.rhum, m.rco2, m.o3, m.no2`,
+      whereQuery: '',
+      hasValidation: false,
+      minVal: null,
+      maxVal: null,
+    };
+
     if (measure) {
-      return {
-        selectQuery: `m.${measure}`,
-        whereQuery: `WHERE m.${measure} IS NOT NULL`,
-      };
-    } else {
-      return {
-        selectQuery: `m.pm25, m.pm10, m.atmp, m.rhum, m.rco2, m.o3, m.no2`,
-      };
+      const { minVal, maxVal, hasValidation } = getMeasureValidValueRange(
+        measure as MeasureType,
+      );
+      let validationQuery = '';
+
+      if (hasValidation) {
+        query.hasValidation = true;
+        query.minVal = minVal;
+        query.maxVal = maxVal;
+        validationQuery = `AND m.${measure} BETWEEN $${paramsCount + 1} AND $${paramsCount + 2}`;
+      }
+
+      query.selectQuery = `m.${measure}`;
+      query.whereQuery = `WHERE m.${measure} IS NOT NULL ${validationQuery}`;
     }
+    return query;
   }
 
   async retrieveLatest(
@@ -32,7 +55,13 @@ class MeasurementRepository {
     limit: number = 100,
     measure?: string,
   ): Promise<Measurement[]> {
-    const { selectQuery, whereQuery } = this.buildMeasureQuery(measure);
+    const params = [offset, limit];
+    const { selectQuery, whereQuery, hasValidation, minVal, maxVal } =
+      this.buildMeasureQuery(measure, params.length);
+
+    if (hasValidation) {
+      params.push(minVal, maxVal);
+    }
 
     const query = ` 
             WITH latest_measurements AS (
@@ -66,10 +95,7 @@ class MeasurementRepository {
         `;
 
     try {
-      const result = await this.databaseService.runQuery(query, [
-        offset,
-        limit,
-      ]);
+      const result = await this.databaseService.runQuery(query, params);
       return result.rows.map(
         (measurement: Partial<Measurement>) => new Measurement(measurement),
       );
@@ -86,8 +112,15 @@ class MeasurementRepository {
     yMax: number,
     measure?: string,
   ): Promise<Measurement[]> {
-    const { selectQuery, whereQuery } = this.buildMeasureQuery(measure);
+    const params = [xMin, yMin, xMax, yMax];
 
+    const { selectQuery, whereQuery, hasValidation, minVal, maxVal } =
+      this.buildMeasureQuery(measure, params.length);
+
+    if (hasValidation) {
+      params.push(minVal, maxVal);
+    }
+    
     // Format query
     const query = `
             WITH latest_measurements AS (
@@ -127,12 +160,7 @@ class MeasurementRepository {
 
     try {
       // Execute query with query params value
-      const result = await this.databaseService.runQuery(query, [
-        xMin,
-        yMin,
-        xMax,
-        yMax,
-      ]);
+      const result = await this.databaseService.runQuery(query, params);
 
       // Return rows while map the result first to measurement entity
       return result.rows.map(

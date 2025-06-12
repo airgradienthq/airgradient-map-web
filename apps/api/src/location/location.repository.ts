@@ -3,11 +3,11 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from "@nestjs/common";
-import DatabaseService from "src/database/database.service";
-import LocationEntity from "./location.entity";
-import { MeasureType } from "src/utils/measureTypeQuery";
-import { getMeasureValidValueRange } from "src/utils/measureValueValidation";
+} from '@nestjs/common';
+import DatabaseService from 'src/database/database.service';
+import LocationEntity from './location.entity';
+import { MeasureType } from 'src/utils/measureTypeQuery';
+import { getMeasureValidValueRange } from 'src/utils/measureValueValidation';
 
 @Injectable()
 class LocationRepository {
@@ -55,7 +55,7 @@ class LocationRepository {
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(
-        "Error query locations information",
+        'Error query locations information',
       );
     }
   }
@@ -97,7 +97,7 @@ class LocationRepository {
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(
-        "Error query location information by id",
+        'Error query location information by id',
       );
     }
   }
@@ -131,7 +131,7 @@ class LocationRepository {
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(
-        "Error query last measures of specific location by id",
+        'Error query last measures of specific location by id',
       );
     }
   }
@@ -143,9 +143,14 @@ class LocationRepository {
     bucketSize: string,
     measure: string,
   ) {
-    const { minVal, maxVal } = getMeasureValidValueRange(
+    const { minVal, maxVal, hasValidation } = getMeasureValidValueRange(
       measure as MeasureType,
     );
+
+    const validationQuery = hasValidation
+      ? `AND m.${measure} BETWEEN $5 AND $6`
+      : '';
+
     const query = `
             SELECT
                 date_bin($4, m.measured_at, $2) AS timebucket,
@@ -153,27 +158,24 @@ class LocationRepository {
             FROM measurement m 
             WHERE 
                 m.location_id = $1 AND 
-                m.measured_at BETWEEN $2 AND $3 AND
-                m.${measure} BETWEEN $5 AND $6
+                m.measured_at BETWEEN $2 AND $3 
+                ${validationQuery}
             GROUP BY timebucket
             ORDER BY timebucket;
         `;
 
+    const params = hasValidation
+      ? [id, start, end, bucketSize, minVal, maxVal]
+      : [id, start, end, bucketSize];
+
     try {
-      const results = await this.databaseService.runQuery(query, [
-        id,
-        start,
-        end,
-        bucketSize,
-        minVal,
-        maxVal,
-      ]);
+      const results = await this.databaseService.runQuery(query, params);
 
       return results.rows;
     } catch (error) {
       this.logger.error(error);
       throw new InternalServerErrorException(
-        `Error query measures history of specific location by id (${error.message})`
+        `Error query measures history of specific location by id (${error.message})`,
       );
     }
   }
